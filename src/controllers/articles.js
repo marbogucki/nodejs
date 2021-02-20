@@ -7,7 +7,18 @@ const isFieldCanBeUpdate = require('../helpers/fieldCanBeUpdate');
 // @route GET /api/v1/articles
 // @access Public
 const fetchArticles = asyncHandler(async (req, res, next) => {
-    const articles = await Article.find({});
+    
+    let query = {};
+
+    // find Articles by qeury
+    if (req.query.q) {
+        query = {
+            ...query,
+            $text: { $search: req.query.q }
+        }
+    }
+
+    const articles = await Article.find(query);
     res.status(200).json({
         success: true,
         data: articles
