@@ -1,6 +1,7 @@
 const Article = require('../models/articles');
 const asyncHandler = require('../middleware/asyncHandler');
 const ErrorResponse = require('../helpers/errorResponse');
+const isFieldCanBeUpdate = require('../helpers/fieldCanBeUpdate');
 
 // @desc Fetch All Articles
 // @route GET /api/v1/articles
@@ -48,6 +49,15 @@ const createArticle = asyncHandler(async (req, res, next) => {
 // @route PUT /api/v1/articles/:id
 // @access Public
 const updateArticle = asyncHandler(async (req, res, next) => {
+    const updateFields = ['title', 'description', 'public'];
+    const isValid = isFieldCanBeUpdate(updateFields, req.body);
+
+    if (!isValid) {
+        return next(
+            new ErrorResponse(`Invalid update field. Update only: [${updateFields}].`, 400)
+        );
+    }
+
     const article = await Article.findByIdAndUpdate(req.params.id, req.body, {
         new: true
     });
